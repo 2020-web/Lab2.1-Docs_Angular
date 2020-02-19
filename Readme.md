@@ -3,10 +3,10 @@
 
 # 前言
 
-这篇 Lab 主要包括了 Angular 框架的背景、技术栈和起步指导。具体学习 Angular 推荐同学们去查看[官方文档](https://angular.cn/docs)。
+这篇 Lab 主要包括了 Angular 框架的背景、技术栈和起步指导。
 
 
-### 1. 安装Node与npm
+## Part 1. 安装Node与npm
 
 首先，我们需要安装 Node.js 和 npm。
 
@@ -24,7 +24,7 @@ npm = Node Package Manager，绝大部分的现代前端项目中都使用 npm �
 
 要想检查你是否已经安装了 npm 客户端，请在终端/控制台窗口中运行 `npm -v` 命令。
 
-### 2. 安装Angular
+## Part 2. 安装Angular
 
 以下的内容来自angular.cn中文官网:《快速上手》，https://angular.cn/guide/quickstart
 
@@ -123,7 +123,7 @@ npm install --save @angular/material
 
 新添加的库已经被记录到`package.json`中。
 
-### 3. Angular 起步
+## Part 3. Angular 起步
 
 在这一部分，我们会先介绍Angular的基本概念，然后构建一个简单的模拟电商网站。
 
@@ -398,8 +398,217 @@ export class ProductAlertsComponent implements OnInit {
 
    ![image-20200219163548980](assets/image-20200219163548980.png)
 
+   > 要了解如何将数据从父组件传递到子组件、拦截并处理来自父组件的值，以及检测并对输入属性值进行更改的更多信息，请参阅 [组件交互](https://angular.cn/guide/component-interaction)一章。
 
-## 5. 继续学习 Angular
+6、要想让 “Notify Me” 按钮正常工作，你需要配置两处：
+
+- 当用户点击 “Notify Me” 时，产品提醒组件发出一个事件
+
+- 商品列表组件对这个事件进行响应
+
+  1.打开 `product-alerts.component.ts`。
+
+  2.从 `@angular/core` 中导入 `Output` 和 `EventEmitter`：
+
+  ```typescript
+  import { Component } from '@angular/core';
+  import { Input } from '@angular/core';
+  import { Output, EventEmitter } from '@angular/core';
+  ```
+
+  3.在组件类中，添加一个用 `@Output()` 装饰器和一个事件发射器 `EventEmitter()` 实例定义一个名为 `notify` 的属性。这可以让商品提醒组件在 notify 属性发生变化时发出事件。
+
+  ```typescript
+  export class ProductAlertsComponent implements OnInit {
+    @Input() product;
+    @Output() notify = new EventEmitter();
+    constructor() { }
+  
+    ngOnInit() {
+    }
+  
+  }
+  ```
+
+  4.1. 在商品提醒模板（`product-alerts.component.html`）中，用事件绑定更新“Notify Me”按钮，以调用 `notify.emit()` 方法。
+
+  ```html
+  <p *ngIf="product.price > 700">
+    <button (click)="notify.emit()">Notify Me</button>
+  </p>
+  ```
+
+  4.2. 接下来，定义当用户单击该按钮时应该发生的行为。回想一下，应该由父组件（商品列表组件）采取行动，而不是商品提醒组件。在 `product-list.component.ts` 文件中，定义一个 `onNotify()` 方法，类似于 `share()` 方法：
+
+  ```typescript
+  export class ProductListComponent {
+    products = products;
+  
+    share() {
+      window.alert('The product has been shared!');
+    }
+  
+    onNotify() {
+      window.alert('You will be notified when the product goes on sale');
+    }
+  }
+  ```
+
+  4.3. 最后，修改商品列表组件以接收商品提醒组件的输出。
+
+  在 `product-list.component.html` 中，把 `app-product-alerts` 组件（就是它显示的“Notify Me”按钮）的 `notify` 事件绑定到商品列表组件的 `onNotify()` 方法。
+
+  ```html
+  <button (click)="share()">
+    Share
+  </button>
+  
+  <app-product-alerts
+    [product]="product" 
+    (notify)="onNotify()">
+  </app-product-alerts>
+  ```
+
+7、试试“Notify Me”按钮：
+
+![image-20200219165530631](assets/image-20200219165530631.png)
+
+> 要了解关于从子组件监听事件、读取子属性或调用子方法以及如何用服务在组件之间进行双向通信的详细信息，请参阅“[组件交互](https://angular.cn/guide/component-interaction)”一章。
+
+#### 3.6 路由
+
+现在，这个在线商店应用会有一个基本的商品名录。该应用还没有任何可变的状态或导航。它只有一个 URL，该 URL 总是会显示“我的商店”页面，其中是商品列表及其描述。
+
+接下来我们尝试添加Angular 路由器，来用一些独立页面显示完整的产品详情，这些页面有自己的 URL。
+
+Angular [路由器](https://angular.cn/guide/glossary#router)能让你根据用户在应用中的位置向用户显示不同的组件和数据。当用户执行应用任务时，路由器可以从一个视图导航到另一个视图。比如：
+
+- 在地址栏中输入一个 URL，导航到相应的页面。
+- 点击页面上的链接，导航到新页面。
+- 点击浏览器的后退和前进按钮，在浏览器的历史中前后导航。
+
+##### 3.6.1 注册路由
+
+1、首先为商品详情页生成一个新组件。把组件命名为 `product-details`。
+
+`ng generate component product-details`
+
+2、在 `app.module.ts` 中，添加一个商品详情路由规则，该路由的 `path` 是 `products/:productId`，`component` 是 `ProductDetailsComponent`。
+
+```typescript
+@NgModule({
+  imports: [
+    BrowserModule,
+    ReactiveFormsModule,
+    RouterModule.forRoot([
+      { path: '', component: ProductListComponent },
+      { path: 'products/:productId', component: ProductDetailsComponent },
+    ])
+  ],
+```
+
+典型的 Angular `Route` 具有两个属性：
+
+- `path`: 用来匹配浏览器地址栏中 URL 的字符串。
+- `component`: 导航到该路由时，路由器应该创建的组件。
+
+`@NgModule` 元数据会初始化路由器，并开始监听浏览器地址的变化。
+
+将 `RouterModule` 添加到 `imports` 数组中，同时通过调用 `RouterModule.forRoot()` 来使用路由配置：
+
+这个方法之所以叫 `forRoot()`，是因为你要在应用的顶级配置这个路由器。 `forRoot()` 方法会提供路由所需的服务提供商和指令，还会基于浏览器的当前 URL 执行首次导航。
+
+3、配置组件的模板，以定义用户如何导航到路由或 URL。当用户点击商品名称时，应用就会显示那个商品的详情。
+
+1. 打开 `product-list.component.html`。
+
+2. 修改 `*ngFor` 指令，在遍历列表的过程中把 `products` 数组中的每个索引赋值给 `productId` 变量。
+
+3. 修改商品名称的链接，使其包含 `routerLink`。
+
+   ```html
+   <div *ngFor="let product of products; index as productId">
+   
+     <h3>
+       <a [title]="product.name + ' details'" [routerLink]="['/products', productId]">
+         {{ product.name }}
+       </a>
+     </h3>
+   <!-- . . . -->
+   </div>
+   ```
+
+   RouterLink 指令让路由器控制了一个链接元素。在这种情况下，路由或 URL 包含一个固定的区段（ `/products` ），但其最后一个区段是变量，要插入当前商品的 id 属性。例如，`id` 为 1 的商品的 URL 类似于 `http://localhost:4200/products/0`。
+
+   通过单击商品名称来测试路由器。该应用会显示商品详情组件，该组件目前始终显示 “product-details works！”
+
+   注意预览窗口中的 URL 变化了。它的最后一段是 `products/#`，这里的 `#` 代表你点击的那个路由的编号。
+
+   ![image-20200219174818524](assets/image-20200219174818524.png)
+
+##### 3.6.2 使用路由信息
+
+商品详情组件负责处理每个商品的显示。Angular 的路由器会根据浏览器的 URL 和你定义的这些路由来决定如何显示组件。本节通过 Angular 的路由器来组合使用 `products` 数据和路由信息，以显示每个商品的详情。
+
+1、打开 `product-details.component.ts` 文件
+
+2、改用外部文件中的商品数据。
+
+从 `@angular/router` 包导入 `ActivatedRoute`，从 `../products` 文件导入 `products` 数组。
+
+```typescript
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+import { products } from '../products';
+```
+
+定义 `product` 属性，并把它加入构造函数括号中作为参数，以便把 `ActivatedRoute` 注入到构造函数中。
+
+```typescript
+export class ProductDetailsComponent implements OnInit {
+  product;
+
+  constructor(
+    private route: ActivatedRoute,
+  ) { }
+
+}
+```
+
+`ActivatedRoute` 专门用于由 Angular 路由器加载的每个路由组件。它包含关于该路由，路由参数以及与该路由关联的其它数据的信息。
+
+3、打开`product-details.component.ts`，在 `ngOnInit()` 方法中订阅了路由参数，并且根据 `productId` 获取了该产品。
+
+```typescript
+ngOnInit() {
+  this.route.paramMap.subscribe(params => {
+    this.product = products[+params.get('productId')];
+  });
+}
+```
+
+这个路由参数对应于你在路由中定义的路径变量。与该路由匹配的 URL 提供了 `productId`。 Angular 使用这个 `productId` 来显示每个单独商品的详细信息。
+
+4、打开`product-details.component.html`，修改组件模板，在 `*ngIf` 中显示商品详情。
+
+```html
+<h2>Product Details</h2>
+
+<div *ngIf="product">
+  <h3>{{ product.name }}</h3>
+  <h4>{{ product.price | currency }}</h4>
+  <p>{{ product.description }}</p>
+
+</div>
+```
+
+现在，当用户点击商品列表中的某个名字时，路由器就会导航到商品的不同网址，用商品详情组件代替商品列表组件，并显示商品详情。
+
+![image-20200219175626181](assets/image-20200219175626181.png)
+
+
+## Part 4. 继续学习 Angular
 
 继续学习 Angular 请阅读官方 Tutorial。
 
@@ -407,11 +616,11 @@ export class ProductAlertsComponent implements OnInit {
 
 1. [动态组件加载器](https://angular.cn/guide/dynamic-component-loader)
 
-2. [ViewChild](https://angular.cn/api/core/ViewChild)
+2. [继续完善电商网站](https://angular.cn/start/data)
 
-3. [ContentChild](https://angular.cn/api/core/ContentChild)
+3. [更多demo](https://angular.cn/tutorial)
 
-4. [ngTemplateOutlet](https://angular.cn/api/common/NgTemplateOutlet)
+4. [基本概念](https://angular.cn/guide/architecture)
 
 5. [模板引用变量 ( #var )](https://angular.cn/guide/template-syntax#ref-vars)
 
@@ -419,7 +628,7 @@ export class ProductAlertsComponent implements OnInit {
 
 > Angular 官方网站: https://angular.io，中文网站：https://angular.cn。推荐先阅读文档中的 Tutorial 部分实现官方样例，再阅读 Guide 部分详细了解 Angular 的工作原理。
 >
-> Angular 开发相关资源：https://angular.io/resources，中文：https://angular.cn/resources。其中，IDE 推荐使用 IntelliJ 或者 WebStorm，Tooling 部分推荐学习 Angular CLI，UI Component 部分列举了目前主要的 UI 库，跨平台开发部分推荐了解 Ionic 和 Electron。
+> Angular 开发相关资源：https://angular.io/resources，中文：https://angular.cn/resources。其中，IDE 推荐使用 vS Code 或者 WebStorm，Tooling 部分推荐学习 Angular CLI，UI Component 部分列举了目前主要的 UI 库，跨平台开发部分推荐了解 Ionic 和 Electron。
 >
 > TypeScript: https://www.typescriptlang.org/index.html
 >
@@ -429,17 +638,11 @@ export class ProductAlertsComponent implements OnInit {
 >
 > Node.js: https://nodejs.org
 
-## 6. 课后作业
+## Part 5. 提交
 
 截止时间：待定
 
-提交方式：待定
-
-**题目:** 
-
-- 在第一部分，给alice组件定义属性```age=13```，方法```sayHello() {console.log("alice say hello")}```，然后利用装饰器 ContentChild 在 parents 组件中调用 alice 组件内的属性和方法。这部分代码以“姓名+学号+angular+part1.zip”的压缩，(node_modules文件夹不包括)
-
-- 在第二部部分，子组件有一个```input```的属性，输入了姓名```name```字段值。现在要求以合理的方式实现父子组件通信的功能，功能上不要求。这部分代码以“姓名+学号+angular+part2.zip”的压缩，(node_modules文件夹不包括)
+提交方式：将项目部署到云上（[部署方式](https://angular.cn/start/deployment)），将云地址写在一份文档里，文档里也可以简要介绍下lab过程中遇到的问题收获以及你新添加的功能（可选），将该文档提交到超星指定的lab作业栏里。
 
 
 
