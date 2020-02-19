@@ -48,7 +48,7 @@ npm install -g @angular/cli
 
 >请先在终端/控制台窗口中运行命令 node -v 和 npm -v， 来验证一下你正在运行 node 、npm 和 Angular CLI 的版本。 最新稳定的版本则没问题。
 
-![](./assests/version.png)
+![](./assets/version.png)
 
 #### 步骤 2. 创建工作区和初始应用
 
@@ -94,7 +94,7 @@ ng serve 命令会启动开发服务器，监听文件变化，并在修改这�
 
 会看到：
 
-![](./assests/app-works.png)
+![](./assets/app-works.png)
 
 ####  步骤4: 使用 npm 添加 Material UI 库
 
@@ -125,21 +125,29 @@ npm install --save @angular/material
 
 ### 3. Angular 起步
 
-#### 3.1 TypeScript
+在这一部分，我们会先介绍Angular的基本概念，然后构建一个简单的模拟电商网站。
 
-Angular 项目一般使用 TypeScript 来代替 JavaScript。直接写 JavaScript 是合法的，但是不推荐。
+请同学们先下载[项目demo](https://github.com/2020-web/Lab2.1_Code-Angular_Demo)。下载之后先尝试利用`cnpm install`和`ng serve`把网站的“壳”运行起来。
 
-TypeScript 是一种编译到 JavaScript 的编程语言，弥补了一些 JavaScript 语言上的一些缺点，比 JavaScript 更加强大好用。
+![image-20200219153010905](./assets/image-demo.png)
 
-> TypeScript 学习：https://www.typescriptlang.org/index.html
+可以看到，在这个初始应用程序中，定义了一个带有带有顶栏的框架（包含商店名称和结账图标）以及一个产品列表的标题（它将用来自应用中的数据填充并动态更新产品列表）。
 
-#### 3.2 Angular 基本概念
+#### 3.1 Angular 基本概念
 
 推荐同学们先把这两个文档看一下，建立一个大概的认识。
 
 Angular项目代码结构： [工作区与项目文件的结构](https://angular.cn/guide/file-structure)
 
 Angular的基本概念：[基本概念简介](https://angular.cn/guide/architecture)
+
+#### 3.2 TypeScript
+
+Angular 项目一般使用 TypeScript 来代替 JavaScript。直接写 JavaScript 是合法的，但是不推荐。
+
+TypeScript 是一种编译到 JavaScript 的编程语言，弥补了一些 JavaScript 语言上的一些缺点，比 JavaScript 更加强大好用。
+
+> TypeScript 学习：https://www.typescriptlang.org/index.html
 
 #### 3.3 理解起始工程
 
@@ -149,471 +157,213 @@ Angular的基本概念：[基本概念简介](https://angular.cn/guide/architect
 
 `src/app/app.component.ts` 中定义了名为 `AppModule` 的根模块，它会告诉 Angular 如何组装应用。这里最初只声明一个 `AppComponent`。当你向应用中添加更多组件时，它们也必须在这里声明。
 
-`name` 变量在 `AppComponent` 类中被定义为了 `‘angular-learning’` ，修改 `name` 变量的值就可以修改对应的 HTML 代码，这个特性被称为`数据绑定`。
-
 `selector: 'app-root'` 对应的是 `index.html` 中的`<app-root></app-root>`，表示当前组件的代码会被插入到 `<my-app>` 标签中。
 
-#### 3.4 修改起始代码，改成计时器
+在`src/app`路径下已经生成了两个组件`top-bar`和`product-list`。
 
-首先，我们导入刚刚安装的 `Material UI` 组件到 `src/app/app.module.ts` 中：
+#### 3.4 模板语法
+
+Angular 的模板语法扩展了 HTML 和 JavaScript。
+
+1、在 `product-list` 文件夹中，打开模板文件 `product-list.component.html`。
+
+2、修改商品列表模板，看是否列出了商品名称。
+
+```html
+<h2>Products</h2>
+
+<div *ngFor="let product of products">
+</div>
+
+```
+
+列表中的每个商品都以同样的方式在页面上挨个显示出来。要遍历这些预定义的商品列表，请使用 `*ngFor` 指令，把 `*ngFor` 指令加到 `<div>` 上，有了 `*ngFor`，这个`<div>`就会被列表中的每个商品都重复渲染一次。
+
+> `*ngFor` 是一个 "结构型指令"。结构型指令会通过添加、删除和操纵它们的宿主元素等方式塑造或重塑 DOM 的结构。任何带有星号 `*` 的指令都是结构型指令。
+
+要显示商品的名称，请使用插值语法 `{{}}`。插值会把属性的值作为文本渲染出来。在`<div>`里面，添加一个 `<h3>` 标题来显示商品 name 属性的插值：
+
+```html
+<h2>Products</h2>
+
+<div *ngFor="let product of products">
+
+  <h3>
+      {{ product.name }}
+  </h3>
+
+</div>
+```
+
+预览窗格会立即更新，以显示列表中每个商品的名称。
+
+![image-20200219155431992](./assets/image-20200219155431992.png)
+
+3、为了让每个商品名称都能链接到商品详情，添加一个 `<a>` 元素，并使用属性绑定语法 `[]` 把该链接的 `title` 设置成该商品的名字，如下所示：
+
+```html
+<h2>Products</h2>
+
+<div *ngFor="let product of products">
+
+  <h3>
+    <a [title]="product.name + ' details'">
+      {{ product.name }}
+    </a>
+  </h3>
+
+</div>
+```
+
+在预览窗格中，将鼠标悬停在显示的商品名称上，可以看到绑定的 name 属性值。它们都是商品名加上单词 "details" 的格式。**插值 `{{}}` 允许你把属性值渲染为文本；而属性绑定语法 `[]` 则允许你在模板表达式中使用属性值。**
+
+![template-syntax-product-anchor](./assets/template-syntax-product-anchor.png)
+
+4、添加商品说明。在 `<p>` 标签上，使用 `*ngIf` 指令，这样 Angular 只会在当前商品有描述信息的情况下创建这个 `<p>` 元素。
+
+```html
+<h2>Products</h2>
+
+<div *ngFor="let product of products">
+
+  <h3>
+    <a [title]="product.name + ' details'">
+      {{ product.name }}
+    </a>
+  </h3>
+
+  <p *ngIf="product.description">
+    Description: {{ product.description }}
+  </p>
+
+</div>
+```
+
+该应用会立即在列表中显示每种商品的名称和描述。请注意，最后一个商品根本没有描述信息。由于该商品的 description 属性为空，因此 Angular 不会创建 `<p>` 元素（包括静态文本 “Description”）。
+
+![image-20200219160456740](./assets/image-20200219160456740.png)
+
+5、添加一个按钮，以便让用户可与朋友分享商品。把 button 的 `click` 事件绑定预先定义好的 `share()` 方法上（位于 `product-list.component.ts` ）。**事件绑定是通过把事件名称包裹在圆括号 `( )` 中完成的**。
+
+```html
+<h2>Products</h2>
+
+<div *ngFor="let product of products">
+
+  <h3>
+    <a [title]="product.name + ' details'">
+      {{ product.name }}
+    </a>
+  </h3>
+
+  <p *ngIf="product.description">
+    Description: {{ product.description }}
+  </p>
+
+  <button (click)="share()">
+    Share
+  </button>
+
+</div>
+```
+
+现在，每个商品都有一个 “Share” 按钮了：
+
+![image-20200219160708687](./assets/image-20200219160708687.png)
+
+目前，该应用现在具有商品列表和共享功能。在这个过程中，你已经学会了 Angular 模板语法的五个常用特性：
+
+- `*ngFor`
+- `*ngIf`
+- 插值 `{{}}`
+- 属性绑定 `[]`
+- 事件绑定 `()`
+
+#### 3.5 组件
+
+*组件*在用户界面（也就是 UI）中定义了一些责任区，让你能重用这些 UI 功能集。你已经通过商品列表组件构建了一个组件。
+
+组件包含三部分：
+
+- **一个组件类**，它用来处理数据和功能。上一节，我们在组件类中定义了商品数据和 `share()` 方法，它们分别用来处理数据和功能。
+- **一个 HTML 模板**，它决定了 UI。在上一节中，商品列表的 HTML 模板用来显示每个商品的名称、描述和 “Share” 按钮。
+- **组件专属的样式**定义了外观和感觉。商品列表中还没有定义任何样式，那属于组件 CSS 负责。
+
+Angular 应用程序由一棵组件树组成，每个 Angular 组件都有一个明确的用途和责任。
+
+目前，该范例有三个组件：
+
+![Online store with three components](./assets/app-components.png)
+
+- `app-root`（橙色框）是应用的外壳。这是要加载的第一个组件，也是所有其它组件的父组件。你可以把它想象成一个基础页面。
+- `app-top-bar`（蓝色背景）是商店名称和结帐按钮。
+- `app-product-list`（紫色框）是在上一节中修改过的商品列表。
+
+##### 组件交互
+
+目前，商品列表会显示每个商品的名称和描述。 该商品列表组件还定义了一个 `products` 属性，它包含每个商品的导入数据（来自 `products.ts` 中的 `products` 数组。）
+
+接下来创建一个新的提醒功能。它会接收一个商品作为输入。它会检查商品的价格，如果价格高于 700 美元，它会显示一个“Notify Me”（通知我）按钮，让用户注册一个当商品上市时发送的通知。
+
+1、创建一个新商品提醒组件。
+
+`ng generate component product-alerts`
+
+该 generator 为组件的三个部分创建了启动文件：
+
+- `product-alerts.component.ts`
+- `product-alerts.component.html`
+- `product-alerts.component.css`
+
+2、打开 `product-alerts.component.ts`。
 
 ```typescript
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
-import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material';
-
-
-@NgModule({
-  declarations: [
-    AppComponent,
-
-  ],
-  imports: [
-    BrowserModule,
-    MatButtonModule, 
-    BrowserAnimationsModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+@Component({
+  selector: 'app-product-alerts',
+  templateUrl: './product-alerts.component.html',
+  styleUrls: ['./product-alerts.component.css']
 })
-export class AppModule { }
+export class ProductAlertsComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}
+
 ```
 
-这里只导入了 `Material UI` 中的 `MdButtonModule`， 即按钮组件的样式。使用组件则需要导入对应的组件模块。
+`@Component` 是个装饰器函数，用于为该组件指定 Angular 所需的元数据。
 
-然后修改 `src/app/app.component.ts` 为：
+CLI 自动生成了三个元数据属性：
+
+1. `selector`— 组件的选择器（CSS 元素选择器）
+2. `templateUrl`— 组件模板文件的位置。
+3. `styleUrls`— 组件私有 CSS 样式表文件的位置。
+
+[CSS 元素选择器](https://developer.mozilla.org/en-US/docs/Web/CSS/Type_selectors) `app-product-alerts` 用来在父组件的模板中匹配 HTML 元素的名称，以识别出该组件。
+
+`ngOnInit()` 是一个[生命周期钩子](https://angular.cn/guide/lifecycle-hooks#oninit)，Angular 在创建完组件后很快就会调用 `ngOnInit()`。这里是放置初始化逻辑的好地方。
+
+始终要 `export` 这个组件类，以便在其它地方（比如 `AppModule`）导入它。
+
+3、设置新商品提醒组件，让它接收一个商品作为输入：
+
+a.从 `@angular/core` 导入 `Input`(product-alerts.component.ts)。
 
 ```typescript
-import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material';
-
-@Component({
-  selector: 'app-root',
-  template: `
-  <h1>Time flows: {{time}}s.</h1>
-  <button mat-raised-button (click)="addOneSecond()" color="accent">+1s</button>
-  `,
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-
-  time = 0;
-
-  ngOnInit():void {
-    let self = this;
-    setInterval(function () {
-      self.time += 1;
-    }, 1000);
-  }
-
-  addOneSecond():void {
-    this.time += 1;
-  }
-}
-
+import { Component, OnInit } from '@angular/core';
+import { Input } from '@angular/core';
 ```
 
- `src/app/app.component.ts` 中目前包含了整个页面的 HTML，CSS 和 TypeScript 代码。
-
-- styles 数组即为当前页面的 CSS 设置。
-  - 这种类似内联的方式也不够好，推荐使用外联：修改这行为`styleUrls: ['./app.component.css']`，并将 CSS 代码写在 `app.component.css` 文件中。
-  - 在 Component 内的 CSS 代码是局部的，不是全局的，不同 Component 中的 CSS 不会相互影响。不仅如此，你甚至可以在不同 Component 中定义 id 或 class 相同的元素，它们的 CSS 也不会相互影响。
-- template 中是页面的 HTML 代码
-  - {{time}} 对应 AppComponent 中的 time 变量
-  - `md-raised-button` 是 Material UI 里的一种按钮样式（md = material design）
-  - `(click)="addOneSecond()"` 表示按钮点击时调用 AppComponent 中的 addOneSecond 方法
-  - 与 CSS 相同，将此行改为 `templateUrl: 'app.component.html'` 即可使用外联的方式写 HTML 代码
-- AppComponent 中定义了一个 time 变量。
-  - ngOnInit 方法会在 AppComponent 首次被加载时调用，里面代码的作用是每秒给 time 变量加一
-  - addOneSecond 方法可以直接为 time 变量加一
-
-在```src/styles.css```代码中引入全局的样式文件：
-
-```css
-@import '@angular/material/prebuilt-themes/pink-bluegrey.css';
-```
-
-运行后界面如图：
-
-![](./assests/angular-material.png)
-
-demo的代码在这里:
-
-```
-https://github.com/2019-web/Angular-Material
-```
-
-同学们可以在此基础上自己尝试做些修改。 
-
-
-## 4. 深入理解组件
-
-### 4.1 背景知识
-
-从父子组件之间的关系谈起，希望能深入理解组件部分。
-
-#### 4.1.1 Angular的“ng-”元素
-
-Angular拥有很多遵循```ng-```命名约定的属性，它们都共享一个共同的特征（它们不会被渲染到最终的DOM中），但是在行为和用法上有所不同。
-
-1. ```<ng-container>```
-
-我们一般用的最多的那个是ng-container。Angular 的``<ng-container>``是一个分组元素，但它不会污染样式或元素布局，因为 Angular压根不会把它放进 DOM中，这部分比较简单的，一般作为容器使用。
-
-2. ```<ng-content>```
-
-将HTML注入到指定位置的模板中的能力，这现在被称为 “内容投影”。在这种情况下，```<ng-content>``` 元素完全被投影内容所取代。
-
-3. ```<ng-template>```
-
-```<ng-template>```是一个 Angular 元素，用来渲染 HTML。 它永远不会直接显示出来。 事实上，在渲染视图之前，Angular 会把 ```<ng-template>``` 及其内容替换为一个注释。
-
-如果没有使用结构型指令（例如```*ngIf```和```*ngFor```），而仅仅把一些别的元素包装进 ```<ng-template>``` 中，那些元素就是不可见的。
-
-```<ng-content>``` 主要是内容投射功能的基础，非常有用；```<ng-template>``` 可以动态创建模板；```<ng-container>``` 主要在条件判断时不引入额外的 DOM 元素。
-
-### 4.2 实验步骤
-
-#### 4.2.1 父子组件关系（Part1）
-
-在终端命令行输入如下的命令 :
-
-```ini
-# 创建新的项目，项目名称 lab2-angular-code-part1
-ng new lab2-Angulae-code-part1
-# 遇到界面提示‘Y/N’，直接按回车即可
-# 进入文件夹
-cd lab2-Angulae-code-part1
-# 创建parents组件
-ng generate component parents
-# 创建Alice组件
-ng generate component alice
-# 创建Bob组件
-ng generate component bob
-# 创建Tom组件
-ng generate component tom
-```
-> 假设parents(父母)有孩子的名称为Alice、Bob和Tom
-
-在```lab2-angular-code-part1/src/app/app.component.html```中，首先清空这个模版页面的内容，然后输入如下的代码:
-
-```html
-<app-parents>
-  <app-alice></app-alice>
-  <app-bob></app-bob>
-  <app-tom></app-tom>
-</app-parents>
-```
-
-在浏览器中去访问```http://localhost:4200```，你会发现只会输出如下的界面内容:
-
-```html
-parents works!
-```
-
-```<app-parents></app-parents>```标签内部包裹的
-
-```
-  <app-alice></app-alice>
-  <app-bob></app-bob>
-  <app-tom></app-tom>
-```
-却没有任何输出！
-
-这里在 Vue.js 中也有相似的概念，具体参考 Vue.js 官方文档[编译作用域](https://cn.vuejs.org/v2/guide/components-slots.html#%E7%BC%96%E8%AF%91%E4%BD%9C%E7%94%A8%E5%9F%9F)
-
-作为一条规则，请记住：
-
-> 父级组件里的所有内容都是在父级作用域中编译的；子组件里的所有内容都是在子作用域中编译的。
-
-
-##### (1) ```<ng-content>```
-
-如果想要输出 alice 和 bob 组件内部的内容，就要在```src/app/parents/parents.component.html```,加入```<ng-content>```闭合标签，模版的代码如下所示:
-
-```html
-<p>
-  parents works!
-</p>
-<ng-content></ng-content>
-```
-
-这个时候再访问首页，你会发现浏览器上输出了三个组件的模板内容:
-
-```html
-parents works!
-
-alice works!
-
-bob works!
-
-tom works!
-```
-
-如果你想控制选择性的让 alice、bob 或者 tom 组件输出，可以用```<ng-content>``` 的 ```select```属性，可以选择控制其中内容输出。
-
-在```src/app/parents/parents.component.html```中，代码修改如下 :
-
-```html
-parents work！
-<!-- app-alice是alice组件的选择器 -->
-<ng-content select="app-alice"></ng-content>
-```
-
-在浏览器上的输出结果如下:
-
-```html
-parents works!
-
-alice works!
-```
-
-可以只有看到alice组件的内容输出了，其它两个组件 tom 和 bob 没有内容输出。
-
-在Vue.js中，也有与```<ng-content>```相类似的概念，是```<slot>```，具体参考 Vue.js 官方网站的内容[插槽](https://cn.vuejs.org/v2/guide/components-slots.html#%E6%8F%92%E6%A7%BD%E5%86%85%E5%AE%B9)
-
-
-##### (2) ContentChild 装饰器
-
-在```lab2-angular-code-part1/src/app/app.component.html```中：
-
-```html
-<app-parents>
-  <app-alice></app-alice>
-  <app-bob></app-bob>
-  <app-tom></app-tom>
-</app-parents>
-```
-
-这个组件调用结果，parents组件可以通过```ContentChild```装饰器去访问得到alice组件内部的内容。
-在```lab2-angular-code-part1/src/app/parents/parents.component.ts```中
-修改代码为如下:
-
-```javascript
-import { Component, OnInit, ContentChild } from '@angular/core';
-// 引入AliceComponent组件
-import {AliceComponent} from '../alice/alice.component';
-
-@Component({
-  selector: 'app-parents',
-  templateUrl: './parents.component.html',
-  styleUrls: ['./parents.component.css']
-})
-export class ParentsComponent implements OnInit {
-  // 
-  @ContentChild(AliceComponent) alice:AliceComponent;
-  
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-  ngAfterContentInit() {
-    console.log(this.alice);
-  } 
-
-}
-
-```
-
-在 Chrome 浏览器，进入“开发者工具”，可以看到如下的变量输出:
-
-![](./assests/1.png)
-
-可以看到是打印 AliceComponent 组件内的全部的变量和方法的，我们实际上没有定义，所以看到的内容比较少。
-
-> 实际上，到了这里这种组件的嵌套关系并不是父子组件的关系。
-
-下面开始介绍父子组件的形式：
-
-##### (3) 父子组件
-
-在```lab2-angular-code-part1/src/app/app.component.html```中，代码修改如下:
-
-```html
-<app-parents></app-parents>
-```
-在```lab2-angular-code-part1/src/app/parents/parents.component.html```中，代码修改如下:
-
-```html
-<p>
-parents work！
-</p>
-<app-alice></app-alice>
-```
-在parents组件的模板中引入的标签```<app-alice></app-alice>```，这样parents和alice才构成父子组件的关系。
-
-在浏览器中去访问```http://localhost:4200```，你会发现输出如下的界面内容:
-
-```html
-parents works!
-
-alice works!
-```
-
-##### (4) ViewChild 装饰器
-
-如果父亲组件想访问子组件内部的属性和方法，用的是 ViewChild 装饰器。
-
-现在我们利用 ViewChild 装饰器让parents组件可以访问得到alice组件内部的方法和属性。
-
-在```lab2-angular-code-part1/src/app/parents/parents.component.ts```中，代码修改如下:
-
-```javascript
-import { Component, OnInit, ViewChild} from '@angular/core';
-import {AliceComponent} from '../alice/alice.component';
-
-@Component({
-  selector: 'app-parents',
-  templateUrl: './parents.component.html',
-  styleUrls: ['./parents.component.css']
-})
-export class ParentsComponent implements OnInit {
-
-  @ViewChild(AliceComponent) alice:AliceComponent;
-  
-  constructor() { }
-
-  ngOnInit() {
-  }
-
-  ngAfterContentInit() {
-    console.log(this.alice);
-  } 
-
-}
-
-```
-
-在 Chrome 浏览器，进入“开发者工具”，可以看到如下的变量输出:
-
-![](./assests/1.png)
-
-与上面的第一张图的输出结果是一样的。
-
-
-##### (5) ```<ng-template>```
-
-在```lab2-angular-code-part1/src/app/parents/parents.component.ts```中，代码修改如下 :
-
-```html
-<p>
-parents work！
-</p>
-<app-alice></app-alice>
-<app-bob></app-bob>
-<app-tom></app-tom>
-```
-
-在浏览器上的输出结果是:
-
-```html
-parents work！
-
-alice works!
-
-bob works!
-
-tom works!
-```
-
-实际上，我们发现，alice，bob，tom三个组件的有相同的部分，都是只输出了"组件名 works!"而已。而且alice，bob，tom三个组件几乎完全相同，能否有没有模版来实现这样的操作，下面介绍```<ng-template>```。
-
-在```lab2-angular-code-part1/src/app/parents/parents.component.html```中，代码修改如下 :
-
-```html
-<p>
-  parents work！
-</p>
-<!-- 模版的定义 -->
-<ng-template #childTemplate let-name="name">
-  <p>{{name}} works</p>
-</ng-template>
-
-<!-- 对模版赋值 -->
-<div [ngTemplateOutlet]="childTemplate" 
-        [ngTemplateOutletContext]="{name: 'alice'}">
-</div>
-
-<!-- 对模版赋值 -->
-<div [ngTemplateOutlet]="childTemplate" 
-        [ngTemplateOutletContext]="{name: 'bob'}">
-</div>
-
-<!-- 对模版赋值 -->
-<div [ngTemplateOutlet]="childTemplate" 
-        [ngTemplateOutletContext]="{name: 'tom'}">
-</div>
-```
-
-可以看到浏览器上输出的结果是 ：
-
-```html
-parents work！
-
-alice works
-
-bob works
-
-tom works
-```
-
-说明 : 在```<div></div>```标签内部定义的方括号扩起来的，如ngTemplateOutlet、ngTemplateOutletContext一般称之为“指令”。
-
-```#childTemplate```称之为模板引用变量（#var），具体参考官方的文档：[模板引用变量 ( #var )](https://angular.cn/guide/template-syntax#ref-vars)
-
-好的，到这里，我们定义了三个组件，完成的工作都是输出结果，有高度的一致性，我们能不能只定义一个组件 Children 组件，然后利用这个组件去实现三个组件的创建，类似于工厂方法的设计模式呢？
-
-#### 4.2.2 动态组件(Dynamic Component)（Part2）
-
-动态组件的代码可能在最终的 PJ 上是用不到的，这里供拓展相关的知识。
-
-##### (1) 动态创建组件
-
-首先，到了这里，要将之前的三个孩子组件全部删除，可以还要考虑删除引用的问题。
-
-我在这里是重新新建项目，重新创建两个组件，这样简单点，如下操作:
-
-```ini
-# 创建新的项目，项目名称 lab2-angular-code-part2
-ng new lab2-Angulae-code-part2
-# 遇到界面提示‘Y/N’，直接按回车即可
-# 进入文件夹
-cd lab2-Angulae-code-part2
-# 创建parents组件
-ng generate component parents
-# 创建children组件
-ng generate component children
-```
-
-parents组件是父组件，children组件是子组件，子组件允许父组件传入值。
-
-在```lab2-angular-code-part2/src/app/children/children.component.html```中，代码修改如下 :
-
-```html
-<p>
-{{name}} works!
-<p>
-```
-
-在```lab2-angular-code-part2/src/app/children/children.component.ts```中，代码修改如下 :
-
-```javascript
-import { Component, OnInit, Input } from '@angular/core';
-
-@Component({
-  selector: 'app-children',
-  templateUrl: './children.component.html',
-  styleUrls: ['./children.component.css']
-})
-export class ChildrenComponent implements OnInit {
-
-  // 组件name值允许外部输入
-  @Input() name:string;
-
+b.在 `ProductAlertsComponent` 类的定义中，定义一个带 `@Input()` 装饰器的 `product` 属性。`@Input()` 装饰器指出其属性值是从该组件的父组件商品列表组件中传入的(product-alerts.component.ts)。
+
+```typescript
+export class ProductAlertsComponent implements OnInit {
+  @Input() product;
   constructor() { }
 
   ngOnInit() {
@@ -622,123 +372,31 @@ export class ChildrenComponent implements OnInit {
 }
 ```
 
-在```lab2-angular-code-part2/src/app/parents/parents.component.html```中，代码修改如下:
+4、定义这个新商品提醒组件的视图。
 
-```html
-<p>
-  parents works!
-</p>
-<ng-template #addChild></ng-template>
-<button (click)="createComponent('alice');">add alice</button>
-<button (click)="createComponent('bob');">add bob</button>
-<button (click)="createComponent('tom');">add tom</button>
+1. 打开 `product-alerts.component.html` 模板，把作为占位符的 p 替换为如果商品价格超过 700 美元就要显示出来的“通知我”按钮。
 
-```
+5、现在，把这个新商品提醒组件显示为该商品列表的一部分（子组件）。
 
-```#addChild```是模板引用变量。
+1. 打开 `product-list.component.html`。
 
+2. 要包含这个新组件，只要像使用 HTML 元素一样使用它的选择器（ `app-product-alert` ）就可以了。
 
-在```lab2-angular-code-part2/src/app/parents/parents.component.ts```中，代码修改如下:
+3. 通过属性绑定把当前商品作为输入传给组件。
 
-```javascript
-import { Component, OnInit, ComponentFactory,ViewContainerRef,ViewChild, OnDestroy,ComponentFactoryResolver, TemplateRef } from '@angular/core';
-import { ChildrenComponent } from '../children/children.component';
-import { ComponentRef } from '@angular/core';
+   ```html
+   <button (click)="share()">
+     Share
+   </button>
+   
+   <app-product-alerts
+     [product]="product">
+   </app-product-alerts>
+   ```
 
-@Component({
-  selector: 'app-parents',
-  templateUrl: './parents.component.html',
-  styleUrls: ['./parents.component.css']
-})
-export class ParentsComponent implements OnInit, OnDestroy {
+   新商品提醒组件会从商品列表中获取商品作为输入信息。通过该输入，它会根据商品的价格显示或隐藏 “Notify Me” 按钮。由于 Phone XL 的售价超过了 700 美元，所以该商品上会出现“Notify Me”按钮。
 
-  // Children组件的引用
-  componentRef: ComponentRef<ChildrenComponent>;
-
-  // 通过 ViewChild 装饰器来获取视图中的模板引用变量#addChild，如果没有指定第二个查询参数read，则默认返回的组件实例或相应的 DOM 元素，但是在这里我们需要获取 ViewContainerRef 实例。
-  @ViewChild("addChild", { read: ViewContainerRef }) addChild: ViewContainerRef;
-
-  // 在我们定义 createComponent() 方法前，我们需要注入 ComponentFactoryResolver 服务对象。该 ComponentFactoryResolver 服务对象中，提供了一个很重要的方法 - resolveComponentFactory() ，该方法接收一个组件类作为参数，并返回 ComponentFactory
-  constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
-
-  ngOnInit() {
-
-  }
-
-  createComponent(name: string) {
-    
-    // 每次我们需要创建组件时，我们需要删除之前的视图，否则组件容器中会出现多个视图 (如果允许多个组件的话，就不需要执行清除操作 )。
-    this.addChild.clear();
-    // resolveComponentFactory() 方法接受一个组件并返回如何创建组件的 ComponentFactory 实例
-    let componentFactory : ComponentFactory<ChildrenComponent>= this.componentFactoryResolver.resolveComponentFactory(ChildrenComponent);
-    // 帮助理解调试
-    console.log(componentFactory); 
-    // 创建组件引用
-    this.componentRef= this.addChild.createComponent(componentFactory);
-    // 已经能获取新组件的引用，即可以我们可以设置组件的输入类型，传入name字符串
-    this.componentRef.instance.name=name;
-    console.log(this.componentRef);
-
-
-
-  }
-  ngAfterViewInit() {
-    console.log(this.addChild);
-  }
-
-  ngOnDestroy() {
-
-  }
-}
-
-```
-
-在```lab2-angular-code-part2/src/app/app.module.ts```中，代码修改如下:
-
-```javascript
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-
-import { AppComponent } from './app.component';
-import { ParentsComponent } from './parents/parents.component';
-import { ChildrenComponent } from './children/children.component';
-
-@NgModule({
-  declarations: [
-    AppComponent,
-    ParentsComponent,
-    ChildrenComponent,
-  ],
-  imports: [
-    BrowserModule
-  ],
-  providers: [],
-  // 将动态组件 ChildrenComponent 添加到 NgModule 的 entryComponents 中
-  entryComponents:[ChildrenComponent],
-  bootstrap: [AppComponent],
-})
-export class AppModule { }
-
-```
-
-在浏览器中去访问```http://localhost:4200```，你会发现输出如下的界面内容，点击不同的按钮，可以看到不同的值，同时在点击按钮的过程中，完成Children组件的创建。
-
-![](./assests/2.png)
-
-##### (2) Modal 组件模版 
-
-这里在前面叙述 ```(1) 动态创建组件```，是想抛砖引玉说明一下，阿里云的Angular UI框架NG-ZORRO或ng-bootstrap中Modal（模态框）组件部分的使用。
-
-具体的文档:
-
-NG-ZORRO [服务方式创建Modal](https://ng.ant.design/components/modal/zh#components-modal-demo-service)
-
-
-ng-bootstrap [Modal with options](https://ng-bootstrap.github.io/#/components/modal/examples#options)
-
-这里太深入的东西，我就不是很懂了，原理部分应该是前面叙述的```(1) 动态创建组件```部分，点到为止。
-
-
+   ![image-20200219163548980](assets/image-20200219163548980.png)
 
 
 ## 5. 继续学习 Angular
